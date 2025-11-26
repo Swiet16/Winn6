@@ -12,18 +12,26 @@ const Index = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const { data } = await supabase
-        .from('posts')
-        .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-        .limit(3);
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('*')
+          .eq('published', true)
+          .order('created_at', { ascending: false })
+          .limit(6);
 
-      setFeaturedPosts(data || []);
-      
-      setTimeout(() => {
-        setLoading(false);
-      }, 1500);
+        if (error) {
+          console.error('Error loading posts:', error);
+        }
+
+        setFeaturedPosts(data || []);
+      } catch (err) {
+        console.error('Failed to load posts:', err);
+      } finally {
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
+      }
     };
 
     loadData();
@@ -72,7 +80,7 @@ const Index = () => {
           <section className="py-16 bg-muted/30">
             <div className="container mx-auto px-4">
               <h2 className="text-3xl font-bold text-center mb-12">Featured Work</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {featuredPosts.map((post) => (
                   <div
                     key={post.id}
@@ -83,13 +91,22 @@ const Index = () => {
                         src={post.media_url}
                         alt={post.title}
                         className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                    {post.type === 'video' && post.thumbnail_url && (
+                      <img
+                        src={post.thumbnail_url}
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-white font-semibold">{post.title}</h3>
+                        <h3 className="text-white font-semibold text-base md:text-lg">{post.title}</h3>
                         {post.description && (
-                          <p className="text-white/80 text-sm">{post.description}</p>
+                          <p className="text-white/80 text-xs md:text-sm line-clamp-2">{post.description}</p>
                         )}
                       </div>
                     </div>
