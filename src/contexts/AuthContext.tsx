@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -100,6 +100,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         variant: 'destructive',
       });
     } else {
+      // Check if this is the super admin email and set role
+      if (email === 'myne7x@gmail.com' && data.user) {
+        try {
+          await supabase.rpc('set_super_admin_by_email', { user_email: email });
+        } catch (err) {
+          console.error('Error setting super admin role:', err);
+        }
+      }
+      
       toast({
         title: 'Success!',
         description: 'Please check your email to verify your account.',

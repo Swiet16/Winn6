@@ -199,6 +199,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      set_super_admin_by_email: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "user" | "admin" | "super_admin"
